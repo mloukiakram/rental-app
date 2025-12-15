@@ -119,5 +119,18 @@ export const mockService = {
                 else reject(new Error('Listing not found'));
             }, 200);
         });
+    },
+
+    getReviews(id) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([
+                    { id: 1, user: 'Alice', date: 'October 2023', text: 'Absolutely stunning place! The views were incredible and the host was super responsive.' },
+                    { id: 2, user: 'Michael', date: 'September 2023', text: 'Great location, very clean. Would definitely stay again.' },
+                    { id: 3, user: 'Sofia', date: 'August 2023', text: 'Perfect for our family vacation. The pool was a hit with the kids!' },
+                    { id: 4, user: 'David', date: 'July 2023', text: 'A bit smaller than expected, but very cozy and well-equipped.' }
+                ]);
+            }, 300);
+        });
     }
 };

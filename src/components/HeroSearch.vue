@@ -134,6 +134,12 @@ const handleSearch = () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: inherit;
+}
+
+/* Fix for date input height consistency */
+.date-input {
+  min-width: 110px;
 }
 
 /* Custom separator trick */
@@ -187,5 +193,10 @@ const handleSearch = () => {
   display: none;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.date-input {
+    font-family: inherit;
+    min-width: 110px;
 }
 </style>

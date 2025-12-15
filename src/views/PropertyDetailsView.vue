@@ -6,14 +6,23 @@ import NavBar from '../components/NavBar.vue'
 
 const route = useRoute()
 const property = ref(null)
+const reviews = ref([])
 const loading = ref(true)
 const bookingSuccess = ref(false)
+const checkIn = ref('')
+const checkOut = ref('')
+const guests = ref(1)
 
 onMounted(async () => {
     try {
-        property.value = await mockService.getListingById(route.params.id)
+        const [listingData, reviewsData] = await Promise.all([
+            mockService.getListingById(route.params.id),
+            mockService.getReviews(route.params.id)
+        ])
+        property.value = listingData
+        reviews.value = reviewsData
     } catch (e) {
-        console.error("Listing not found", e)
+        console.error("Error loading property", e)
     } finally {
         loading.value = false
     }
@@ -128,20 +137,20 @@ const alert = (msg) => window.alert(msg)
                <div class="dates">
                  <div class="date-input">
                    <label>CHECK-IN</label>
-                   <input type="text" placeholder="Add date">
+                   <input type="date" v-model="checkIn">
                  </div>
                  <div class="date-input border-left">
                    <label>CHECKOUT</label>
-                   <input type="text" placeholder="Add date">
+                   <input type="date" v-model="checkOut">
                  </div>
                </div>
                <div class="guests-input">
                  <label>GUESTS</label>
-                 <input type="text" value="1 guest">
+                 <input type="number" min="1" max="10" v-model="guests">
                </div>
             </div>
 
-            <button class="reserve-btn" @click="handleReserve">
+            <button class="reserve-btn" @click="handleReserve" :disabled="!checkIn || !checkOut">
                 {{ bookingSuccess ? 'Confirmed!' : 'Reserve' }}
             </button>
             <p class="disclaimer">You won't be charged yet</p>
@@ -449,6 +458,11 @@ const alert = (msg) => window.alert(msg)
     background-color: var(--primary-hover);
 }
 
+.reserve-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
 .disclaimer {
     text-align: center;
     font-size: 14px;
@@ -488,5 +502,68 @@ const alert = (msg) => window.alert(msg)
     .gallery-grid {
         height: 300px;
     }
+}
+
+/* Reviews */
+.reviews-section h3 {
+    margin-bottom: 24px;
+    font-size: 20px;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 768px) {
+    .reviews-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.review-card {
+    margin-bottom: 8px;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.review-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--text-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.review-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.review-user {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.review-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.review-text {
+    color: var(--text-primary);
+    line-height: 1.5;
+    font-size: 15px;
 }
 </style>

@@ -1,15 +1,33 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useAuth } from '../composables/useAuth'
+import AuthModal from './AuthModal.vue'
 
+const { user, logout: authLogout } = useAuth()
 const showLanguageMenu = ref(false)
 const showProfileMenu = ref(false)
 const navRef = ref(null)
+
+// Auth Modal State
+const isAuthOpen = ref(false)
+const authMode = ref('login')
+
+const openAuth = (mode) => {
+    authMode.value = mode
+    isAuthOpen.value = true
+    showProfileMenu.value = false
+}
+
+const logout = () => {
+    authLogout()
+    showProfileMenu.value = false
+}
 
 const toggleLanguage = () => {
     showLanguageMenu.value = !showLanguageMenu.value
     showProfileMenu.value = false
 }
-
+// ... (rest of the code same as original)
 const toggleProfile = () => {
     showProfileMenu.value = !showProfileMenu.value
     showLanguageMenu.value = false
@@ -59,20 +77,35 @@ onUnmounted(() => {
         <div class="menu-container">
             <button class="nav-btn profile-btn" aria-label="Profile" @click.stop="toggleProfile">
               <i class="ph ph-list"></i>
-              <i class="ph-fill ph-user-circle"></i>
+              <img v-if="user" :src="user.avatar" alt="Avatar" class="avatar-img" />
+              <i v-else class="ph-fill ph-user-circle"></i>
             </button>
             
             <div v-if="showProfileMenu" class="dropdown-menu profile-menu">
-                <div class="menu-item bold">Sign up</div>
-                <div class="menu-item">Log in</div>
+                <template v-if="!user">
+                    <div class="menu-item bold" @click="openAuth('signup')">Sign up</div>
+                    <div class="menu-item" @click="openAuth('login')">Log in</div>
+                </template>
+                <template v-else>
+                    <div class="menu-item bold">Messages</div>
+                    <div class="menu-item">Trips</div>
+                    <div class="menu-item">Wishlists</div>
+                </template>
                 <div class="divider"></div>
                 <div class="menu-item">Host your home</div>
                 <div class="menu-item">Host an experience</div>
                 <div class="menu-item">Help</div>
+                <div v-if="user" class="menu-item" @click="logout">Log out</div>
             </div>
         </div>
       </div>
     </div>
+    
+    <AuthModal 
+        :is-open="isAuthOpen" 
+        :mode="authMode" 
+        @close="isAuthOpen = false" 
+    />
   </nav>
 </template>
 
@@ -136,6 +169,13 @@ onUnmounted(() => {
 
 .nav-btn:hover {
   background-color: var(--bg-secondary);
+}
+
+.avatar-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .profile-btn {
